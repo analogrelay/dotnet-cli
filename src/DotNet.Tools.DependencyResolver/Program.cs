@@ -15,7 +15,7 @@ namespace DotNet.Tools.DependencyResolver
             var packages = app.Option("-p|--packages <PACKAGES_DIRECTORY>", "Path to the directories containing packages to resolve.", CommandOptionType.MultipleValue);
             var target = app.Option("-t|--target <TARGET_IDENTIFIER>", "The target to resolve dependencies for.", CommandOptionType.SingleValue);
             var output = app.Option("-o|--output <OUTPUT_FILE>", "The path in which to write the output file (formatted as text with one line per dependency)", CommandOptionType.SingleValue);
-            var assetType = app.Option("-a|--assets <ASSET_TYPE>", "The type of assets to resolve (common values include: compile, runtime, native)", CommandOptionType.SingleValue);
+            var assetType = app.Option("-a|--assets <ASSET_TYPE>", "The type of assets to resolve (common values include: compile, runtime, native)", CommandOptionType.MultipleValue);
             var project = app.Argument("PROJECT", "The project to resolve. A directory or a path to a project.lock.json may be used. Defaults to the current directory");
 
             app.OnExecute(() =>
@@ -45,7 +45,7 @@ namespace DotNet.Tools.DependencyResolver
                 {
                     path = Path.Combine(path, "project.lock.json");
                 }
-                return Resolver.Execute(packages.Values, target.Value(), output.Value(), assetType.Value(), path);
+                return Resolver.Execute(packages.Values, target.Value(), output.Value(), assetType.Values, path);
             });
 
             app.Execute(args);

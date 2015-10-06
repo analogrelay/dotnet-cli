@@ -8,7 +8,7 @@ namespace DotNet.Tools.DependencyResolver
 {
     public static class Resolver
     {
-        public static int Execute(IEnumerable<string> packageDirectories, string targetName, string output, string assetType, string lockFilePath)
+        public static int Execute(IEnumerable<string> packageDirectories, string targetName, string output, IEnumerable<string> assetTypes, string lockFilePath)
         {
             // Open the lock file
             var lockFile = JObject.Parse(File.ReadAllText(lockFilePath));
@@ -49,22 +49,25 @@ namespace DotNet.Tools.DependencyResolver
                 }
 
                 // Locate all the assets
-                var assetList = dependency.Value[assetType] as JObject;
-                if (assetList != null)
+                foreach (var assetType in assetTypes)
                 {
-                    foreach (var asset in assetList)
+                    var assetList = dependency.Value[assetType] as JObject;
+                    if (assetList != null)
                     {
-                        var pathified = Path.Combine(asset.Key.Split('/'));
-                        if (!Path.GetFileName(pathified).Equals("_._", StringComparison.Ordinal))
+                        foreach (var asset in assetList)
                         {
-                            var file = Path.Combine(packageRoot, pathified);
-                            if (!File.Exists(file))
+                            var pathified = Path.Combine(asset.Key.Split('/'));
+                            if (!Path.GetFileName(pathified).Equals("_._", StringComparison.Ordinal))
                             {
-                                Console.Error.WriteLine($"WARNING: Missing asset: {file}");
-                                success = false;
+                                var file = Path.Combine(packageRoot, pathified);
+                                if (!File.Exists(file))
+                                {
+                                    Console.Error.WriteLine($"WARNING: Missing asset: {file}");
+                                    success = false;
+                                }
+                                files.Add(file);
+                                Console.WriteLine(file);
                             }
-                            files.Add(file);
-                            Console.WriteLine(file);
                         }
                     }
                 }

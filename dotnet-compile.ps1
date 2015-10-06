@@ -19,13 +19,12 @@ $srcs = dnx -p "$PSScriptRoot\src\DotNet.Tools.SourceResolver" run
 $resp = @($refs | foreach { "/r:$_" })
 $resp += @($srcs | foreach { $_ })
 $resp += @(
-    "/out:$OutputPath\$OutputName.exe"
+    "/out:$OutputPath\$OutputName.dll"
     "/nostdlib"
-    "/target:exe"
 )
 
 Write-Host "Compiling..."
 $resp > "$OutputPath\csc.rsp"
 csc "@$OutputPath\csc.rsp"
 
-Write-Host " $OutputName -> $OutputPath\$OutputName.exe"
+Write-Host " $OutputName -> $OutputPath\$OutputName.dll"
